@@ -1,0 +1,102 @@
+<%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<head>
+<title>Assan-Admin</title>
+</head>
+
+<body>
+	<div class="d-flex flex-column flex-root">
+		<div>
+			<main>
+				<!--//Page Toolbar//-->
+				<div class="toolbar px-3 px-lg-6 py-3">
+					<div class="position-relative container-fluid px-0">
+						<div class="row align-items-center position-relative">
+							<div class="col-md-8 mb-4 mb-md-0">
+								<h3 class="mb-2">내 업무 모아보기</h3>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="content pt-3 px-3 px-lg-6 d-flex flex-column-fluid">
+					<div class="container-fluid px-0">
+						<div class="row">
+							<div class="col-12 mb-3 mb-lg-5">
+								<div class="card">
+									<div class="table-responsive">
+										<table id="datatable"
+											class="table mt-0 table-striped table-card table-nowrap">
+											<thead class="text-uppercase small text-body-secondary">
+												<c:choose>
+													<c:when test="${empty workList}">
+														<tr>
+															<td colspan="4">조회하실 게시물이 존재하지 않습니다.</td>
+														</tr>
+													</c:when>
+													<c:otherwise>
+														<tr>
+															<th>업무제목</th>
+															<th>프로젝트제목</th>
+															<th>업무상태코드</th>
+															<th>업무우선순위</th>
+															<th>업무진척도</th>
+															<th>시작일</th>
+															<th>종료일</th>
+														</tr>
+											</thead>
+											<c:forEach items="${workList}" var="workList">
+												<tr>
+													<td>${workList.workTitle}</td>
+													<td>${workList.pjName}</td>
+													<td>${workList.workStatusCode}</td>
+													<td>${workList.workPriority}</td>
+													<td>${workList.workProgress}</td>
+													<c:set value="${workList.workStartDate}" var="workStartDate"></c:set>
+													<fmt:parseDate value="${workStartDate}" pattern="yyyy-MM-dd" var="workStartDate"></fmt:parseDate>
+													<fmt:formatDate value="${workStartDate}" pattern="yyyy-MM-dd" var="workStartDate"/>
+													<td>${workStartDate}</td>
+													<c:set value="${workList.workEndDate}" var="workEndDate"></c:set>
+													<fmt:parseDate value="${workEndDate}" pattern="yyyy-MM-dd" var="workEndDate"></fmt:parseDate>
+													<fmt:formatDate value="${workEndDate}" pattern="yyyy-MM-dd" var="workEndDate"/>
+													<td>${workEndDate}</td>
+												</tr>
+											</c:forEach>
+											</c:otherwise>
+											</c:choose>
+										</table>
+
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</main>
+			<!--///////////Page content wrapper End///////////////-->
+		</div>
+	</div>
+
+	<!--////////////Theme Core scripts Start/////////////////-->
+	<script src="/resources/assets/js/theme.bundle.min.js"></script>
+
+	<!--////////////Theme Core scripts End/////////////////-->
+
+
+	<!--Datatables-->
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+	<script
+		src="https://cdn.datatables.net/v/bs5/dt-1.13.4/datatables.min.js"></script>
+	<script>
+		document.addEventListener("DOMContentLoaded", function() {
+			// Datatables Responsive
+			$("#datatable").DataTable({
+				"filter":false,
+                "length":false
+			});
+		});
+	</script>
+</body>
+
+</html>

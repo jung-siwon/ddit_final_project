@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.mapper.admin.StatisticsMapper">
+
+	<select id="getYearCateData" parameterType="StatisticsVO" resultType="StatisticsVO">
+		/* kr.or.ddit.mapper.admin.StatisticsMapper.getYearCateData */
+		SELECT
+              CONCAT('20',SUBSTR(A.MY_EPROD,5,2)) AS CHYEAR
+		    , SUM(A.EPROD_PRICE) AS CHTOTALPRICE
+		    , EPROD_CATE_NUM AS CHCATE
+		FROM 
+		      TB_MYEXPERT A
+		    , TB_EXP_PROD B
+		WHERE
+		    A.EPROD_NUM = B.EPROD_NUM
+		GROUP BY
+		      CONCAT('20',SUBSTR(A.MY_EPROD,5,2))
+		    , EPROD_CATE_NUM
+	</select>
+	
+	<select id="getCateSumData" parameterType="StatisticsVO" resultType="StatisticsVO">
+		/* kr.or.ddit.mapper.admin.StatisticsMapper.getCateSumData */
+		SELECT
+		      SUM(A.EPROD_PRICE) AS CHTOTALPRICE
+		    , EPROD_CATE_NUM AS CHCATE
+		FROM 
+		      TB_MYEXPERT A
+		    , TB_EXP_PROD B
+		WHERE
+		    A.EPROD_NUM = B.EPROD_NUM
+		GROUP BY
+		    EPROD_CATE_NUM
+	</select>
+	
+	<select id="getYearSumData" parameterType="StatisticsVO" resultType="StatisticsVO">
+		/* kr.or.ddit.mapper.admin.StatisticsMapper.getYearSumData */
+		SELECT
+		      SUM(A.EPROD_PRICE) AS CHTOTALPRICE
+		    , EPROD_CATE_NUM AS CHCATE
+		FROM 
+		      TB_MYEXPERT A
+		    , TB_EXP_PROD B
+		WHERE
+		    A.EPROD_NUM = B.EPROD_NUM
+        AND
+            SUBSTR(A.MY_EPROD,5,2) = to_char(sysdate, 'YY') 
+        GROUP BY
+		    EPROD_CATE_NUM
+	</select>
+
+</mapper>

@@ -1,0 +1,265 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+
+${chartList }
+
+<div class="container-fluid">
+	<div class="row">
+		<ul class="nav nav-tabs">
+			<li class="nav-item">
+				<a class="nav-link <c:if test="${active eq '1' or not active }">active</c:if>" id="sales-tap" data-bs-toggle="tab" data-bs-target="#sales" role="tab" aria-controls="sales" aria-selected="true">
+			      매출현황
+				</a>
+			</li>
+			<li class="nav-item">
+			    <a class="nav-link <c:if test="${active eq '2' }">active</c:if>" id="project-tap" data-bs-toggle="tab" data-bs-target="#project" role="tab" aria-controls="project" aria-selected="false">
+			      프로젝트현황
+			    </a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link <c:if test="${active eq '2' }">active</c:if>"
+				id="mento-tap" data-bs-toggle="tab" data-bs-target="#mento" role="tab" aria-controls="mento" aria-selected="false">
+					멘토현황
+				</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link <c:if test="${active eq '3' }">active</c:if>"
+				id="member-tap" data-bs-toggle="tab" data-bs-target="#member" role="tab" aria-controls="member" aria-selected="false">
+					회원현황
+				</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link <c:if test="${active eq '4' }">active</c:if>"
+				id="board-tap" data-bs-toggle="tab" data-bs-target="#board" role="tab" aria-controls="board" aria-selected="false">
+					게시판현황
+				</a>
+			</li>
+		</ul>
+	</div>
+	
+	<!-- Content  -->
+	
+	<div class="row">
+		<div class="tab-content">
+		      <div class="tab-pane fade <c:if test="${active eq '1' or not active }">show active</c:if>" id="sales" role="tabpanel" aria-labelledby="sales-tab">
+				<div class="row">
+					<div class="card"> 
+						<h6 class="h6">최근 3년간 총 수익</h6>
+						<div class="text-body-secondary">당해년도의 경우 현재까지의 수익합계를 표시합니다.</div>
+						<span class="border-top d-block flex-grow-1"></span>
+						<div class="row" style="height: 400px;">
+							<div class="col-6 d-flex justify-content-center align-middle">
+								<canvas id="salesChart" width="100%"></canvas>
+							</div>
+							<div class="col-6">
+								<div class="chart-container d-flex justify-content-center align-middle" style="position: relative; height: 45vh; width: 100%;">
+									<canvas id="salesChartWeight" width="100%" height="100%"></canvas>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="card">
+						<div class="row">
+							<h6 class="h6">2023년 수익</h6>
+							<span class="border-top d-block flex-grow-1"></span>
+							<div class="col-sm-12 d-flex justify-content-center align-middle">
+								<div class="col-sm-7 d-flex justify-content-center align-middle">
+									<canvas id="salesChartMonth"></canvas>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+			</div>
+			
+			
+			<div class="tab-pane fade <c:if test="${active eq '2' }">show active</c:if>" id="project" role="tabpanel" aria-labelledby="project-tab">
+				<h4>프로젝트</h4>
+				<div class="row">
+					<div>뭐... 나와야함... 3개년도 프로젝트 생성수 / 종료수 line</div>
+					<div>뭐... 나와야함... 3개년도 프로젝트 종료당시 참여인원수 bar</div>
+					<div>뭐... 나와야함... 올해 생성수 / 종료수 / 진행 중인 프로젝트 수 bar</div>
+				</div>
+				
+			</div>
+			<div class="tab-pane fade <c:if test="${active eq '3' }">show active</c:if>" id="mento" role="tabpanel" aria-labelledby="mento-tab">
+				<h4>멘토현황</h4>
+				<div class="row">
+					<div>3개년도 멘토 증감 line</div>
+					<div>3개년도 멘토 경력분포 </div>
+					<div>3개년도 멘토 직무분포</div>
+				</div>
+			</div>
+			
+			<div class="tab-pane fade <c:if test="${active eq '4' }">show active</c:if>" id="member" role="tabpanel" aria-labelledby="member-tab">
+				<h4>회원현황</h4>
+				<div class="row">
+					<div>3개년도 회원증감</div>
+					<div>3개년도 블랙리스트 증감</div>
+					<div>회원/멘토 비율</div>
+					<div>구매이력 있는 회원(1회, 3회, 5회 이상)</div>
+				</div>
+			</div>
+			<div class="tab-pane fade <c:if test="${active eq '5' }">show active</c:if>" id="board" role="tabpanel" aria-labelledby="board-tab">
+				<h4>게시판현황</h4>
+				<div class="row">
+					<div>3개년도 각 게시판 글 숫자</div>
+					<div>게시판별 신고수</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+$(function() {
+	// 2023년 수익비중
+	var salesChartMonthLabels = ['22년 5월', '22년 6월', '22년 7월', '22년 8월', '22년 9월', '22년 10월', '22년 11월', '22년 12월', '23년 1월', '23년 2월', '23년 3월', '23년 4월', '23년 5월'];
+	var salesChartMonthData = {
+			  labels: salesChartMonthLabels,
+			  datasets: [
+			    {
+			      label: '템플릿',
+			      data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+			    },
+			    {
+			      label: '솔루션',
+			      data: [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 15, 3]
+			    },
+			    {
+			      label: '프리미엄 서비스',
+			      data: [6, 7, 8, 9, 10, 11, 12, 11, 10, 9, 8, 3, 7]
+			    }
+			  ]
+			};
+	
+	const config = {
+			  type: 'line',
+			  options: {
+			    responsive: true,
+			    plugins: {
+			      legend: {
+			        position: 'top',
+			      },
+			      title: {
+			        display: true,
+			        text: 'Chart.js Line Chart'
+			      }
+			    }
+			  },
+			};
+	
+	var scmCtx = document.getElementById('salesChartMonth').getContext('2d');
+	var salesChartMonth = new Chart(scmCtx, {
+		type : 'line',
+		data : salesChartMonthData,
+		options : config
+	})
+
+
+	
+	// 3년 사업간 총 수익비중(멘토링, 템플릿, 등급상품)
+	var scwCtx = document.getElementById('salesChartWeight').getContext('2d');
+	var piedata = {
+		    datasets: [{
+		        data: [50, 20, 30]
+		    }],
+		    labels: [
+		        '1',
+		        '2',
+		        '3'
+		    ]
+		};
+	var salesChartWeight = new Chart(scwCtx, {
+		type : 'pie'
+		, data : piedata
+		, options : {
+			plugins: {
+				legend: {
+					position: 'left'
+				}
+			}
+		}
+	})
+	
+	$.ajax({
+		url : "/coco/admin/getCateSumData" ,
+		type : "get",
+		success : function(res) {
+			console.log("pie_res:", res);
+			
+			var pieDatasets = res.datasets;
+			var pieLabels = res.labels;
+			
+			console.log("pieDatasets:", pieDatasets);
+			console.log("pieLabels:", pieLabels);
+			
+			salesChartWeight.data.labels = pieLabels;
+			
+			for (var i = 0; i < pieDatasets.length; i++) {
+				var chartSet = {};
+		    	chartSet.data = pieDatasets[i].data;
+		    	salesChart.data.datasets[i] = chartSet;
+			}
+			salesChartWeight.update();
+		}
+	})
+	
+	
+	/* 3년 - 연간 / 카테고리별 / 수익 */
+	var ctx = document.getElementById('salesChart').getContext('2d');
+	var salesChart = new Chart(ctx, {
+		type : 'bar'
+		, data : {
+			// 가로축
+			labels : ['2020', '2021', '2022', '2023']
+			, datasets : [
+				{
+					label: '솔루션'
+					, data: [ 30, 10, 50, 10 ]
+				}
+				, {
+					label: '멘토링'
+					, data: [ 40, 60, 70, 60 ]
+			}
+			, {
+				label: '프리미엄서비스'
+				, data: [ 20, 30, 40, 30 ]
+			}
+			]
+		}
+	});
+	
+	$.ajax({
+		url : "/coco/admin/getYearCateData"
+		, type : "get"
+		, success : function(res) {
+		    console.log("ajax로 받아온 res:", res);
+
+// 			var myDatasets = res.datasets;
+// 		    var myLabels = res.labels;
+		    
+// 		    salesChart.data.labels = myLabels;
+		    
+// 		    for(let i=0; i< myDatasets.length; i++){
+// 		    	var chartSet = {};
+// 		    	chartSet.label = myDatasets[i].label;
+// 		    	chartSet.data = myDatasets[i].data;
+// 		    	salesChart.data.datasets[i] = chartSet;
+// 		    }
+			console.log(res.data);
+	    	salesChart.data = res.data;
+		    salesChart.update();
+		} 
+	})
+	
+});
+
+	
+</script>
+
+
+
+
+

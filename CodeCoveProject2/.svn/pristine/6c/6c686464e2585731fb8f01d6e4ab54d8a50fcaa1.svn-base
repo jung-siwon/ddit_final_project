@@ -1,0 +1,116 @@
+package kr.or.ddit.project.project.controller;
+
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import kr.or.ddit.member.service.IMemberService;
+import kr.or.ddit.member.vo.MemberVO;
+import kr.or.ddit.project.project.service.IJProjectService;
+import kr.or.ddit.project.project.vo.ProjectVO;
+import kr.or.ddit.project.work.vo.WorkVO;
+import lombok.extern.slf4j.Slf4j;
+
+@Controller
+@Slf4j
+@RequestMapping("/coco/project")
+public class JProjectController {
+
+	@Inject //세션용
+	private IMemberService memberService;
+	
+	@Inject //프로젝트용
+	private IJProjectService projectService;
+	
+	@RequestMapping("/jRepositoryList")
+	public String jRepositoryList(HttpServletRequest req, Model model, String memId) {
+		
+		//로그인 세션을 담아서 조건의 memId에 넣을거예요
+		HttpSession session = req.getSession();
+		MemberVO sessionMember = (MemberVO) session.getAttribute("SessionInfo");
+		MemberVO member = memberService.selectMember(sessionMember);
+
+		ProjectVO projectVO = new ProjectVO();
+		projectVO.setMemId(member.getMemId());
+		
+		
+		//로그인 한 아이디에 속한 프로젝트의 리스트를 가져올 거예요
+		List<ProjectVO> projectAllList = projectService.projectAllList(member.getMemId());
+		log.debug("projectAllList에 뭐 들었어?"+projectAllList);
+//		log.debug("프젝리스트의0번은?"+projectAllList.get(0));
+//		log.debug("프젝리스트의1번은?"+projectAllList.get(1));
+
+		//jsp로 값 넘기기
+		model.addAttribute("member", member);
+		model.addAttribute("projectAllList",projectAllList);
+
+		return "project/JRepositoryList";
+	}
+	
+	
+	@RequestMapping("/JRepoWorkList")
+	public String JRepoWorkList(String pjId, Model model ) {
+		List<WorkVO> workList = projectService.repoWorkList(pjId);
+		model.addAttribute("workList", workList);
+		log.debug("workList에 뭐들었니?"+workList);
+		return "project/JRepoWorkList";
+	}
+	
+	@RequestMapping("/JRepoDownload")
+	public String JRepoDownload(String workNum, Model model) {
+		
+		
+		
+		WorkVO downloadList = projectService.downloadList(workNum);
+		log.debug("DownloadList에 뭐 들었어?"+ downloadList);
+//		log.debug("다운로드리스트0번뭐야"+downloadList.getAttatchList().get(0));
+		model.addAttribute("downloadList", downloadList);
+		return "project/JRepoDownload";
+		
+	}
+	
+	@RequestMapping("/allWork")
+	public String allWork(HttpServletRequest req, Model model, String memId) {
+		HttpSession session = req.getSession();
+		MemberVO sessionMember = (MemberVO) session.getAttribute("SessionInfo");
+		MemberVO member = memberService.selectMember(sessionMember);
+		
+		WorkVO workVO = new WorkVO();
+		workVO.setMemId(member.getMemId());
+		
+		List<WorkVO> workList = projectService.workAllList(member.getMemId());
+		log.debug("workList에 뭐 들었어?" +workList);
+		
+		model.addAttribute("workList", workList);
+		
+		return "project/JAllWork";
+	}
+	
+	
+	@RequestMapping("/datatable")
+	public String jataTable() {
+		return "solutions/JDataTable";
+		
+	}
+	
+	
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+

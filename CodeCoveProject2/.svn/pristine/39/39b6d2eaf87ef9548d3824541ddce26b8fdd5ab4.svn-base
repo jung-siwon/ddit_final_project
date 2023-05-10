@@ -1,0 +1,192 @@
+package kr.or.ddit.admin.controller;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.inject.Inject;
+import javax.json.JsonObject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import kr.or.ddit.admin.service.StatisticsService;
+import kr.or.ddit.admin.vo.StatisticsVO;
+import kr.or.ddit.member.vo.MemberVO;
+import lombok.extern.slf4j.Slf4j;
+import oracle.sql.CHAR;
+
+@Slf4j
+@Controller
+@RequestMapping("/coco/admin")
+public class StatisticsController {
+
+	@Inject
+	public StatisticsService service;
+	
+	@RequestMapping("/statistics")
+	public String ShowChart(HttpServletRequest req) {
+		HttpSession session = req.getSession();
+		MemberVO sessionMember = (MemberVO) session.getAttribute("SessionInfo");
+	
+		return "admins/statistics/chartMain";
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/getYearCateData", method = RequestMethod.GET, produces = "application/json")
+	public Map<String, Object> getYearCateData() {
+	    Map<String, Object> chartData = new HashMap<>();
+	    List<StatisticsVO> chartList = service.getYearCateData();
+	    System.out.println("치영! " + chartList.toString());
+	    JSONArray datasets = new JSONArray();
+
+//	    {
+//			// 가로축
+//			labels : ['2020', '2021', '2022', '2023']
+//			, datasets : [
+//				{
+//					label: '솔루션'
+//					, data: [ 30, 10, 50, 10 ]
+//				}
+//				, {
+//					label: '멘토링'
+//					, data: [ 40, 60, 70, 60 ]
+//			}
+//			, {
+//				label: '프리미엄서비스'
+//				, data: [ 20, 30, 40, 30 ]
+//			}
+//			]
+//		}
+	    
+	    
+	    JSONObject topObj = new JSONObject();
+	    JSONArray labelArray = new JSONArray();
+	    for (int i = 2020; i <= 2023; i++) {
+	        labelArray.add(i);
+	    }
+	    topObj.put("labels", labelArray);
+
+	    // datasets 셋팅
+	    JSONArray datasetsArray = new JSONArray();
+	    String[] labelNames = {"솔루션", "멘토링", "프리미엄서비스"};
+	    int[][] data = {{30, 10, 50, 10}, {40, 20, 30, 40}, {20, 50, 10, 30}};
+	    for (int i = 0; i < labelNames.length; i++) {
+	        JSONObject datasetObj = new JSONObject();
+	        datasetObj.put("label", labelNames[i]);
+	        JSONArray dataArray = new JSONArray();
+	        for (int j = 0; j < data[i].length; j++) {
+	            dataArray.add(data[i][j]);
+	        }
+	        datasetObj.put("data", dataArray);
+	        datasetsArray.add(datasetObj);
+	    }
+
+	    topObj.put("datasets", datasetsArray);
+	    chartData.put("data", topObj);
+	    
+	    /*
+	    // label 셋팅
+	    JSONObject topObj = new JSONObject();
+	    JSONArray labelArray = new JSONArray();
+	    labelArray.add(2020);
+	    labelArray.add(2021);
+	    labelArray.add(2022);
+	    labelArray.add(2023);
+	    topObj.put("labels", labelArray);
+	    
+	    // datasets 셋팅
+	    JSONArray datasetsArray = new JSONArray();
+	    
+	    topObj.put("datasets", datasetsArray);
+	    
+//	    for (int i = 0; i < chartList.size(); i++) {
+//			StatisticsVO vo = chartList.get(i);
+//			JSONObject datasetsFirstObj = new JSONObject();
+//			// 첫번째 obj 만들기
+//			datasetsFirstObj.put("label", vo.getChCate());
+//			JSONArray datasetsFirstArray = new JSONArray();
+//			datasetsFirstArray.add(vo.getChTotalPrice());
+//			datasetsFirstObj.put("data", datasetsFirstArray);
+//			datasetsArray.add(datasetsFirstObj);	// obj 3개 들어가야함
+//		}
+	    
+	    // 첫번째 obj 만들기
+	    JSONObject datasetsFirstObj = new JSONObject();
+	    datasetsFirstObj.put("label", "솔루션");
+	    JSONArray datasetsFirstArray = new JSONArray();
+	    datasetsFirstArray.add(30);
+	    datasetsFirstArray.add(10);
+	    datasetsFirstArray.add(50);
+	    datasetsFirstArray.add(10);
+	    datasetsFirstObj.put("data", datasetsFirstArray);
+	    
+	    // 두번째 obj 만들기
+	    JSONObject datasetsSecondObj = new JSONObject();
+	    datasetsSecondObj.put("label", "멘토링");
+	    JSONArray datasetsSecondArray = new JSONArray();
+	    datasetsSecondArray.add(30);
+	    datasetsSecondArray.add(10);
+	    datasetsSecondArray.add(50);
+	    datasetsSecondArray.add(10);
+	    datasetsSecondObj.put("data", datasetsSecondArray);
+	    
+	    // 세번째 obj 만들기
+	    JSONObject datasetsThirdObj = new JSONObject();
+	    datasetsThirdObj.put("label", "프리미엄서비스");
+	    JSONArray datasetsThirdArray = new JSONArray();
+	    datasetsThirdArray.add(30);
+	    datasetsThirdArray.add(10);
+	    datasetsThirdArray.add(50);
+	    datasetsThirdArray.add(10);
+	    datasetsThirdObj.put("data", datasetsThirdArray);
+
+	    datasetsArray.add(datasetsFirstObj);	// obj 3개 들어가야함
+	    datasetsArray.add(datasetsSecondObj);	// obj 3개 들어가야함
+	    datasetsArray.add(datasetsThirdObj);	// obj 3개 들어가야함
+	    
+	    chartData.put("data", topObj);
+	    */
+	    return chartData;
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/getCateSumData", method = RequestMethod.GET, produces = "application/json")
+	public Map<String, Object> getCateSumData(){
+		Map<String, Object> chartData = new HashMap<>();
+	    List<StatisticsVO> chartList = service.getCateSumData();
+
+	    JSONArray datasets = new JSONArray();
+	    JSONObject inDataObj = new JSONObject();
+	    for (int i = 0; i < chartList.size(); i++) {
+			StatisticsVO statisticsVO = chartList.get(i);
+			
+			JSONArray indataArray = new JSONArray();
+			indataArray.add(statisticsVO.getChTotalPrice());
+			
+			datasets.add(indataArray);
+		}
+	    
+	    JSONArray labels = new JSONArray();
+	    labels.addAll(Arrays.asList("템플릿", "솔루션", "프리미엄서비스"));
+
+	    chartData.put("labels", labels);
+	    chartData.put("datasets", datasets);
+
+	    return chartData;
+	}
+}
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,23 @@
+<!-- <body onload="init()"> -->
+    <div id="gantt_container" style="width:100%;height:600px;"></div>
+<!-- </body> -->
+<script>
+function init() {
+	$.ajax({
+		type : "post",
+		url : "/coco/myGantt/list",
+		dataType : "json",
+		success : function(resp){
+			var datas = resp
+			console.log(datas);
+			var ganttConfig = {
+		    		data: datas
+		    };
+			gantt.config.date_format = "%Y-%m-%d %H:%i:%s";
+			gantt.init("gantt_container");
+		    gantt.parse(ganttConfig);
+			
+		}
+	})
+}
+</script>
