@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class VerifyRecaptcha {
 	public static final String url = "https://www.google.com/recaptcha/api/siteverify";
 	private final static String USER_AGENT = "Mozilla/5.0";
-	private static String secret = "6Lc4SyElAAAAAB5dxeQu7iBfYc6AOxfot47iFGvK"; // local
+	private static String secret = ""; // local
 
 	public static void setSecretKey(String key) {
 		secret = key;
